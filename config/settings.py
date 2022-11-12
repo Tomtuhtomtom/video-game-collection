@@ -15,6 +15,8 @@ import environ
 
 env = environ.Env(
     DEBUG=(bool, False)
+    USE_S3=(bool, False),
+    RENDER=(bool, False)
 )
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'rest_framework',
     'django_extensions',
@@ -49,6 +52,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -124,6 +128,10 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static/'
 ]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+if not DEBUG: 
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -131,3 +139,9 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "collection.CustomUser"
+
+if env("RENDER"):
+    ALLOWED_HOSTS.append(env("RENDER_EXTERNAL_HOSTNAME"))
+    DJANGO_SUPERUSER_USERNAME=env("DJANGO_SUPERUSER_USERNAME")
+    DJANGO_SUPERUSER_PASSWORD=env("DJANGO_SUPERUSER_PASSWORD")
+    DJANGO_SUPERUSER_EMAIL=env("DJANGO_SUPERUSER_EMAIL")
