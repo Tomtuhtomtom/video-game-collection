@@ -8,8 +8,11 @@ from rest_framework.reverse import reverse
 
 @api_view(['GET'])
 def api_root(request, format=None):
+    pk = get_object_or_404(CustomUser, pk=request.user.pk)
     return Response({
         'collections/': reverse('all-collections', request=request, format=format),
+        'mycollections/': reverse('logged-in-collections', request=request, format=format),
+        f'owner/{pk.id}/collections/': reverse('owners-collections', request=request, format=format, kwargs={'pk':pk.id}),
     })
 
 
